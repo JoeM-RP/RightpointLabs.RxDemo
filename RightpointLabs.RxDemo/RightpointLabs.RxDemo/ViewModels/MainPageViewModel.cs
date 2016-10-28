@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using Android.Accounts;
 using ReactiveUI;
 using RightpointLabs.RxDemo.Models;
 using Splat;
@@ -14,11 +17,20 @@ namespace RightpointLabs.RxDemo.ViewModels
     public class MainPageViewModel : ReactiveObject
     {
         public IApiService ApiService { get; set; }
+
         private string _searchQuery;
         public string SearchQuery
         {
             get { return _searchQuery; }
             set { this.RaiseAndSetIfChanged(ref _searchQuery, value); }
+        }
+
+        private bool _isRefreshEnabled;
+
+        public bool IsRefreshEnabled
+        {
+            get { return _isRefreshEnabled; }
+            set { this.RaiseAndSetIfChanged(ref _isRefreshEnabled, value); }
         }
 
         private ObservableCollection<object> _searchResults;
@@ -37,8 +49,11 @@ namespace RightpointLabs.RxDemo.ViewModels
 
         public MainPageViewModel(IApiService apiService = null)
         {
+            IObservable<bool> canSearch;
+
             ApiService = apiService ?? Locator.Current.GetService<IApiService>();
 
+            IsRefreshEnabled = true;
             SearchResults = new ObservableCollection<object>();
 
             // This describes (declaratively) the conditions in which the command is enabled. 
@@ -46,10 +61,18 @@ namespace RightpointLabs.RxDemo.ViewModels
             // Notice that we can do some instrumentation here using .Do
             var searchQueryNotEmpty = this.WhenAnyValue(vm => vm.SearchQuery).Select(query => !string.IsNullOrEmpty(query)).DistinctUntilChanged();
             var searchNotExecuting = this.WhenAnyObservable(x => x.Search.IsExecuting).DistinctUntilChanged();
+            var refreshEnabled = this.WhenAnyValue(x => x.IsRefreshEnabled).DistinctUntilChanged();
 
-            var canSearch = Observable.CombineLatest(searchQueryNotEmpty, searchNotExecuting,
+            #region Search Query Conditions
+            canSearch = Observable.CombineLatest(searchQueryNotEmpty, searchNotExecuting,
                         (isSearchQuery, isExecuting) => isSearchQuery && !isExecuting)
                     .Do(cps => Debug.WriteLine("$Can perfrom search query!"))
+                    .DistinctUntilChanged();
+            #endregion
+
+            canSearch = Observable.CombineLatest(refreshEnabled, searchNotExecuting,
+                        (allowRefresh, isExecuting) => allowRefresh && !isExecuting)
+                    .Do(cps => Debug.WriteLine($"Value isRefresh is {IsRefreshEnabled}"))
                     .DistinctUntilChanged();
 
 
@@ -59,8 +82,9 @@ namespace RightpointLabs.RxDemo.ViewModels
             // IsExecuting will be set accordingly while running
             Search = ReactiveCommand.CreateAsyncTask(canSearch, async _ =>
             {
-                // A good spot for DI ...
-                //var apiService = new ApiService();
+                if(apiService == null)
+                    throw new TimeoutException("Api Service is currently unavailable");
+
                 var result = await apiService.Refresh();
 
                 // Return results here. We can further refine results from the api using LINQ here if desired
