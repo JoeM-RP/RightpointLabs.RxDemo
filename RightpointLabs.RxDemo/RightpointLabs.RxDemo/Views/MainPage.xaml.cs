@@ -30,7 +30,6 @@ namespace RightpointLabs.RxDemo.Views
             this.Title = "CTA";
             this.Content = GetLandingPageView();
 
-
             this.ViewModel = new MainPageViewModel(new ApiService());
         }
 
@@ -50,10 +49,9 @@ namespace RightpointLabs.RxDemo.Views
 
             this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsRefreshing).DisposeWith(_bindingsDisposable);
 
-            // TODO JM:
-            #region Pull To Refresh
+            #region TODO JM: PullToRefresh properties
             //this.BindCommand(ViewModel, x => x.Search, c => c._searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
-            //this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsPullToRefreshEnabled).DisposeWith(_bindingsDisposable);
+            this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsPullToRefreshEnabled).DisposeWith(_bindingsDisposable);
             #endregion
 
             // User error allows us to interact with our users and get feedback on how to handle an exception

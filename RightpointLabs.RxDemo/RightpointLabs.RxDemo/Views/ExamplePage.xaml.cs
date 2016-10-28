@@ -19,7 +19,6 @@ namespace RightpointLabs.RxDemo.Views
                 Text = "This is a button"
             };
 
-            _myButton.Clicked += Button_Clicked;
             _buttonClickedInformation = new Label { };
 
             Content = new StackLayout
@@ -31,6 +30,22 @@ namespace RightpointLabs.RxDemo.Views
             };
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            // Register Subscriptions
+            _myButton.Clicked += Button_Clicked;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            // Dispose of subscriptions
+            _myButton.Clicked -= Button_Clicked;
+        }
+
         void Button_Clicked(object sender, EventArgs e)
         {
             // Long-running task might be executed here ...
@@ -40,14 +55,6 @@ namespace RightpointLabs.RxDemo.Views
             _buttonClickedInformation.Text = $"Clicked {_clickCount} times";
 
             // Are we on the UI thread? If we forget... 💣
-        }
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-
-            // Dispose of events
-            _myButton.Clicked -= Button_Clicked;
         }
     }
 }

@@ -68,7 +68,7 @@ namespace RightpointLabs.RxDemo.ViewModels
 
             canSearch = Observable.CombineLatest(searchQueryNotEmpty, searchNotExecuting, refreshEnabled,
                         (isSearchQuery, isExecuting, allowRefresh) => isSearchQuery && allowRefresh && !isExecuting)
-                    .Do(cps => Debug.WriteLine("$Can perfrom search query!"))
+                    .Do(cps => Debug.WriteLine($"Log some relevant info here"))
                     .DistinctUntilChanged();
 
 
