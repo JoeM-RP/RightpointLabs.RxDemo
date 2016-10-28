@@ -19,8 +19,8 @@ namespace RightpointLabs.RxDemo.ViewModels
             set { this.RaiseAndSetIfChanged(ref _searchQuery, value); }
         }
 
-        private ObservableCollection<Arrival> _searchResults;
-        public ObservableCollection<Arrival> SearchResults
+        private ObservableCollection<object> _searchResults;
+        public ObservableCollection<object> SearchResults
         {
             get { return _searchResults; }
             set { this.RaiseAndSetIfChanged(ref _searchResults, value); }
@@ -35,19 +35,17 @@ namespace RightpointLabs.RxDemo.ViewModels
 
         public MainPageViewModel()
         {
-            SearchResults = new ObservableCollection<Arrival>();
+            
+            SearchResults = new ObservableCollection<object>();
 
-            // TODO JM: use combines latest to add trains by color? 52:00
             // This describes (declaratively) the conditions in which the command is enabled. 
             // IsEnabled is more efficient now, because we only update the UI when changed
             // Notice that we can do some instrumentation here using .Do
-            var canSearch =
-                Observable.CombineLatest(
-                        this.WhenAnyValue(vm => vm.SearchQuery)
-                            .Select(query => !string.IsNullOrEmpty(query))
-                            .DistinctUntilChanged(),
-                        this.WhenAnyObservable(x => x.Search.IsExecuting).DistinctUntilChanged(),
-                        (hasSearchQuery, isExecuting) => hasSearchQuery && !isExecuting)
+            var searchQueryNotEmpty = this.WhenAnyValue(vm => vm.SearchQuery).Select(query => !string.IsNullOrEmpty(query)).DistinctUntilChanged();
+            var searchNotExecuting = this.WhenAnyObservable(x => x.Search.IsExecuting).DistinctUntilChanged();
+
+            var canSearch = Observable.CombineLatest(searchQueryNotEmpty, searchNotExecuting,
+                        (isSearchQuery, isExecuting) => isSearchQuery && !isExecuting)
                     .Do(cps => Debug.WriteLine("$Can perfrom search query!"))
                     .DistinctUntilChanged();
 
@@ -59,12 +57,13 @@ namespace RightpointLabs.RxDemo.ViewModels
             {
                 #region Simulate Network Problems
 #if DEBUG
-                if (DateTime.Now.Second % 3 == 0)
-                    throw new TimeoutException("Unable to connect to web service");
+                //if (DateTime.Now.Second % 3 == 0)
+                //    throw new TimeoutException("Unable to connect to web service");
 #endif
                 #endregion
 
-                var apiService = Locator.CurrentMutable.GetService<IApiService>();
+                // A good spot for DI ...
+                var apiService = new ApiService();
                 var result = await apiService.Refresh();
 
                 // Return results here. We can further refine results from the api using LINQ here if desired
@@ -90,14 +89,15 @@ namespace RightpointLabs.RxDemo.ViewModels
             Search.ThrownExceptions
                 .Subscribe(async ex =>
                 {
+                    if(Debugger.IsAttached) Debugger.Break();
+
                     // Show a dialog to the user - UserError is renamed to UserInteraction in v7
                     var result = await UserError.Throw("Network Error", ex);
 
-                    // here, we can take different actions depending ont he user input
+                    // here, we can take different actions depending on the user input
                     if (result == RecoveryOptionResult.RetryOperation && Search.CanExecute(null))
                         Search.Execute(null);
                 });
         }
-
     }
 }

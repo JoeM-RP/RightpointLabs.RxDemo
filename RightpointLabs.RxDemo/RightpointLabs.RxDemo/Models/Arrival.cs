@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Android.Media;
+using System;
 using System.Globalization;
 using System.Xml.Serialization;
+using Xamarin.Forms;
 
 namespace RightpointLabs.RxDemo.Models
 {
@@ -46,6 +48,30 @@ namespace RightpointLabs.RxDemo.Models
         [XmlElement(ElementName = "rt")]
         public string Route { get; set; }
 
+        // TODO JM: as this references Xamarin.Forms, it is really more appropriate for a converter or somesuch
+        public Color Shade
+        {
+            get
+            {
+                switch (this.Route)
+                {
+                    case ("Brn"):
+                        return Color.FromHex("964B00");
+                    case ("Pink"):
+                        return Color.Pink;
+                    case ("Grn"):
+                    case ("Green"):
+                        return Color.Lime;
+                    case ("Red"):
+                        return Color.Red;
+                    case ("Org"):
+                        return Color.FromHex("FFA500");
+                    default:
+                        return Color.FromHex("800080");
+                }
+            }
+        }
+
         /// <summary>
         /// GTFS unique stop ID where this train is expected to ultimately end its service run (experimental and supplemental only—see note below) 
         /// </summary>
@@ -80,6 +106,8 @@ namespace RightpointLabs.RxDemo.Models
         public string ArrivalTimeString { get; set; }
         public DateTime ArrivalTime
             => DateTime.ParseExact(ArrivalTimeString, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
+
+        public string ETA => $"{(ArrivalTime - DateTime.Now):mm} min";
 
         /// <summary>
         /// Indicates that Train Tracker is now declaring “Approaching” or “Due” on site for this train 

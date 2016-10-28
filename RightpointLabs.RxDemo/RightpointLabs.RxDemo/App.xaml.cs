@@ -10,7 +10,7 @@ namespace RightpointLabs.RxDemo
         public const string Host = "http://lapi.transitchicago.com/api/";
         public const string ApiKey = "63300e5686d747f1b0e4437759a4797f";
         public const string Version = "1.0";
-        public const string Max = "5";
+        public const string Max = "15";
 
         #endregion
 
@@ -125,6 +125,16 @@ namespace RightpointLabs.RxDemo
                     {
                         Property = Label.VerticalTextAlignmentProperty,
                         Value = TextAlignment.Center
+                    },
+                    new Setter
+                    {
+                        Property = Label.TextColorProperty,
+                        Value = Color.White,
+                    },
+                    new Setter
+                    {
+                        Property = Label.FontAttributesProperty,
+                        Value = FontAttributes.Bold
                     }
                 }
             };
