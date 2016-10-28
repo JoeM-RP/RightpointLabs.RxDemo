@@ -107,13 +107,13 @@ namespace RightpointLabs.RxDemo.Models
         public DateTime ArrivalTime
             => DateTime.ParseExact(ArrivalTimeString, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture);
 
-        public string ETA => $"{(ArrivalTime - DateTime.Now):mm} min";
+        public string ETA => IsAproaching ? "Due" : $"{(ArrivalTime - DateTime.Now):mm} min";
 
         /// <summary>
         /// Indicates that Train Tracker is now declaring “Approaching” or “Due” on site for this train 
         /// </summary>
         [XmlElement(ElementName = "isApp")]
-        public string IsAproaching { get; set; }
+        public bool IsAproaching { get; set; }
 
         /// <summary>
         /// Boolean flag to indicate whether this is a live prediction or based on schedule in lieu of live data 

@@ -8,6 +8,7 @@ namespace RightpointLabs.RxDemo.Views
 {
     public partial class MainPage : IViewFor<MainPageViewModel>
     {
+        private Switch searchRefresh;
         private Entry textEntry;
         private Button search;
         private ListView searchResults;
@@ -28,7 +29,7 @@ namespace RightpointLabs.RxDemo.Views
             this.Content = GetLandingPageView();
 
 
-            this.ViewModel = new MainPageViewModel();
+            this.ViewModel = new MainPageViewModel(new ApiService());
         }
 
         protected override void OnAppearing()
@@ -63,7 +64,7 @@ namespace RightpointLabs.RxDemo.Views
                 Orientation = StackOrientation.Horizontal,
                 Children =
                 {
-                    (textEntry = new Entry { Placeholder = " Search", Text = "Washington and Wells", HorizontalOptions = LayoutOptions.FillAndExpand}),
+                    (textEntry = new Entry { Placeholder = " Search", HorizontalOptions = LayoutOptions.FillAndExpand, }),
                     (search = new Button {Text = "Refresh", IsEnabled = true}),
                 }
             };

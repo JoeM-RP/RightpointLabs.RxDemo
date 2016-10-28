@@ -9,7 +9,8 @@ namespace RightpointLabs.RxDemo.Views
             var root = new StackLayout()
             {
                 Orientation = StackOrientation.Horizontal,
-                Padding = new Thickness(15, 10)
+                Padding = new Thickness(15, 10),
+                Margin = new Thickness(0,0,0,1)
             };
             root.SetBinding(VisualElement.BackgroundColorProperty, "Shade");
 
@@ -20,7 +21,7 @@ namespace RightpointLabs.RxDemo.Views
             colorLabel.SetBinding(Label.TextProperty, "Route");
 
             var runLabel = new Label();
-            runLabel.SetBinding(Label.TextProperty, "Run");
+            runLabel.SetBinding(Label.TextProperty, "DestinationName");
 
             var etaLabel = new Label()
             {

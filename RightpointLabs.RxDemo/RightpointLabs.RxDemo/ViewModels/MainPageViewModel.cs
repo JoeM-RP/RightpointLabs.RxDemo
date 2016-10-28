@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
 using ReactiveUI;
 using RightpointLabs.RxDemo.Models;
@@ -12,6 +13,7 @@ namespace RightpointLabs.RxDemo.ViewModels
     // Note that a ViewModel must inherit from ReactiveObject, which implements INotifyPropertyChanged, et al
     public class MainPageViewModel : ReactiveObject
     {
+        public IApiService ApiService { get; set; }
         private string _searchQuery;
         public string SearchQuery
         {
@@ -33,9 +35,10 @@ namespace RightpointLabs.RxDemo.ViewModels
             private set { this.RaiseAndSetIfChanged(ref _search, value); }
         }
 
-        public MainPageViewModel()
+        public MainPageViewModel(IApiService apiService = null)
         {
-            
+            ApiService = apiService ?? Locator.Current.GetService<IApiService>();
+
             SearchResults = new ObservableCollection<object>();
 
             // This describes (declaratively) the conditions in which the command is enabled. 
@@ -57,7 +60,7 @@ namespace RightpointLabs.RxDemo.ViewModels
             Search = ReactiveCommand.CreateAsyncTask(canSearch, async _ =>
             {
                 // A good spot for DI ...
-                var apiService = new ApiService();
+                //var apiService = new ApiService();
                 var result = await apiService.Refresh();
 
                 // Return results here. We can further refine results from the api using LINQ here if desired
@@ -73,7 +76,8 @@ namespace RightpointLabs.RxDemo.ViewModels
                 {
                     SearchResults.Clear();
 
-                    foreach (var arrival in results)
+                    // Here, we could further refine our results
+                    foreach (var arrival in results.OrderBy( a=> a.ArrivalTime ))
                         SearchResults.Add(arrival);
                 });
 
