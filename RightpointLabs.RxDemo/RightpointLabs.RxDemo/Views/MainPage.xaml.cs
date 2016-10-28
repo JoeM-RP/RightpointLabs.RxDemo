@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using ReactiveUI;
@@ -10,6 +11,9 @@ namespace RightpointLabs.RxDemo.Views
 {
     public partial class MainPage : IViewFor<MainPageViewModel>
     {
+        private IObservable<long> _timerObservable;
+        private IDisposable _backgroundRefresh;
+
         private Switch _searchRefresh;
         private Entry _textEntry;
         private Button _search;
@@ -47,6 +51,7 @@ namespace RightpointLabs.RxDemo.Views
             // Command Bind
             this.BindCommand(ViewModel, x => x.Search, c => c._search).DisposeWith(_bindingsDisposable);
 
+            // Bind to a property
             this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsRefreshing).DisposeWith(_bindingsDisposable);
 
             #region TODO JM: PullToRefresh properties
@@ -60,6 +65,16 @@ namespace RightpointLabs.RxDemo.Views
                     var result = await this.DisplayAlert("Failed to get latest schedule", $"{arg.ErrorMessage}{Environment.NewLine}Retry search?", "Yes", "No");
                     return result ? RecoveryOptionResult.RetryOperation : RecoveryOptionResult.CancelOperation;
                 }).DisposeWith(_bindingsDisposable);
+
+            // Timer Observable - let's run the refresh in the background to simulate an event stream
+            // Since we are configuring this on the view and not in the ViewModel, we need to specify
+            // which Scheduler to run on
+            _timerObservable = Observable.Interval(TimeSpan.FromSeconds(45)).Do(val => Debug.WriteLine("Auto Refresh"));
+            _backgroundRefresh =
+                _timerObservable.ObserveOn(RxApp.MainThreadScheduler).Subscribe(val =>
+                {
+                    ViewModel.Search.Execute(null);
+                });
 
             // Run the refresh command OnAppearing
             this.ViewModel.Search.Execute(null);

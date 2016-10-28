@@ -111,9 +111,14 @@ namespace RightpointLabs.RxDemo.Models
         {
             get
             {
+                var eta = ArrivalTime - DateTime.Now;
+
                 if (IsDelayed)
                     return "Delayed";
-                return IsAproaching ? "Due" : $"{(ArrivalTime - DateTime.Now):mm} min";
+                if (eta.Minutes < 1 || IsAproaching)
+                    return "Due";
+
+                return $"{(eta):mm} min";
             }
         }
 

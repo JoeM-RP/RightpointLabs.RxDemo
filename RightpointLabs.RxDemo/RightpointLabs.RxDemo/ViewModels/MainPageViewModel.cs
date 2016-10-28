@@ -48,6 +48,13 @@ namespace RightpointLabs.RxDemo.ViewModels
             private set { this.RaiseAndSetIfChanged(ref _search, value); }
         }
 
+        private ReactiveCommand<List<Arrival>> _background;
+        public ReactiveCommand<List<Arrival>> Background
+        {
+            get { return _background; }
+            private set { this.RaiseAndSetIfChanged(ref _background, value); }
+        }
+
         public MainPageViewModel(IApiService apiService = null)
         {
             IObservable<bool> canSearch;
