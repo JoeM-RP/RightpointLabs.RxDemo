@@ -47,13 +47,14 @@ namespace RightpointLabs.RxDemo.Views
 
             // Command Bind
             this.BindCommand(ViewModel, x => x.Search, c => c._search).DisposeWith(_bindingsDisposable);
-            //this.BindCommand(ViewModel, x => x.Search, c => c._searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
 
             this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsRefreshing).DisposeWith(_bindingsDisposable);
-            //this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsPullToRefreshEnabled).DisposeWith(_bindingsDisposable);
 
-            // Run the refresh command OnAppearing
-            this.ViewModel.Search.Execute(null);
+            // TODO JM:
+            #region Pull To Refresh
+            //this.BindCommand(ViewModel, x => x.Search, c => c._searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
+            //this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsPullToRefreshEnabled).DisposeWith(_bindingsDisposable);
+            #endregion
 
             // User error allows us to interact with our users and get feedback on how to handle an exception
             UserError
@@ -61,6 +62,9 @@ namespace RightpointLabs.RxDemo.Views
                     var result = await this.DisplayAlert("Failed to get latest schedule", $"{arg.ErrorMessage}{Environment.NewLine}Retry search?", "Yes", "No");
                     return result ? RecoveryOptionResult.RetryOperation : RecoveryOptionResult.CancelOperation;
                 }).DisposeWith(_bindingsDisposable);
+
+            // Run the refresh command OnAppearing
+            this.ViewModel.Search.Execute(null);
         }
 
         protected override void OnDisappearing()

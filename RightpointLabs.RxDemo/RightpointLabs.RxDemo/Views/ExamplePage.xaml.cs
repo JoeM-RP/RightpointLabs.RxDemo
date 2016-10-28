@@ -38,6 +38,8 @@ namespace RightpointLabs.RxDemo.Views
 
             // Update the UI manually
             _buttonClickedInformation.Text = $"Clicked {_clickCount} times";
+
+            // Are we on the UI thread? If we forget... 💣
         }
 
         protected override void OnDisappearing()

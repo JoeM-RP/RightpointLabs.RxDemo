@@ -55,7 +55,7 @@ namespace RightpointLabs.RxDemo.ViewModels
             ApiService = apiService ?? Locator.Current.GetService<IApiService>();
 
             IsRefreshEnabled = true;
-            SearchQuery = "Washington & Wells"; // Simulate location services findign the nearest CTA train stop
+            SearchQuery = "Washington & Wells"; // Simulate location services finding the nearest CTA train stop
             SearchResults = new ObservableCollection<object>();
 
 
