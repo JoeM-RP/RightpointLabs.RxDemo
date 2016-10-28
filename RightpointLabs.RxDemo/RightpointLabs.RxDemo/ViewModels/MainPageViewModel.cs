@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Android.Accounts;
@@ -54,7 +55,9 @@ namespace RightpointLabs.RxDemo.ViewModels
             ApiService = apiService ?? Locator.Current.GetService<IApiService>();
 
             IsRefreshEnabled = true;
+            SearchQuery = "Washington & Wells"; // Simulate location services findign the nearest CTA train stop
             SearchResults = new ObservableCollection<object>();
+
 
             // This describes (declaratively) the conditions in which the command is enabled. 
             // IsEnabled is more efficient now, because we only update the UI when changed
@@ -63,16 +66,9 @@ namespace RightpointLabs.RxDemo.ViewModels
             var searchNotExecuting = this.WhenAnyObservable(x => x.Search.IsExecuting).DistinctUntilChanged();
             var refreshEnabled = this.WhenAnyValue(x => x.IsRefreshEnabled).DistinctUntilChanged();
 
-            #region Search Query Conditions
-            canSearch = Observable.CombineLatest(searchQueryNotEmpty, searchNotExecuting,
-                        (isSearchQuery, isExecuting) => isSearchQuery && !isExecuting)
+            canSearch = Observable.CombineLatest(searchQueryNotEmpty, searchNotExecuting, refreshEnabled,
+                        (isSearchQuery, isExecuting, allowRefresh) => isSearchQuery && allowRefresh && !isExecuting)
                     .Do(cps => Debug.WriteLine("$Can perfrom search query!"))
-                    .DistinctUntilChanged();
-            #endregion
-
-            canSearch = Observable.CombineLatest(refreshEnabled, searchNotExecuting,
-                        (allowRefresh, isExecuting) => allowRefresh && !isExecuting)
-                    .Do(cps => Debug.WriteLine($"Value isRefresh is {IsRefreshEnabled}"))
                     .DistinctUntilChanged();
 
 
@@ -92,7 +88,7 @@ namespace RightpointLabs.RxDemo.ViewModels
             });
 
 
-            // ReactiveCommands are IOBServable, whose value are the results
+            // ReactiveCommands are IObservable, whose value are the results
             // from the async method. We can take the search results loaded in the background
             // and add them to our results and show on the UI Thread
             Search.ObserveOn(RxApp.MainThreadScheduler)
@@ -100,7 +96,9 @@ namespace RightpointLabs.RxDemo.ViewModels
                 {
                     SearchResults.Clear();
 
-                    // Here, we could further refine our results
+                    // Here, we could further refine our results using LINQ.
+                    // In this case, we sort by arrival time (a calculated value)
+                    // to ensure trains that are "Due" arrive firstin the list
                     foreach (var arrival in results.OrderBy( a=> a.ArrivalTime ))
                         SearchResults.Add(arrival);
                 });
@@ -120,6 +118,16 @@ namespace RightpointLabs.RxDemo.ViewModels
                     if (result == RecoveryOptionResult.RetryOperation && Search.CanExecute(null))
                         Search.Execute(null);
                 });
+
+
+            // Throttle can be used to limit the flow of events. For example, in text suggestions,
+            // auto complete, or a dynamic search, we may want to wait until the user appears to have
+            // stopped typing before executing the command
+            this.WhenAnyValue(x => x.SearchQuery)
+                .Throttle(TimeSpan.FromSeconds(.75), TaskPoolScheduler.Default)
+                .Do(x => Debug.WriteLine($"Throttle fired for {x}"))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .InvokeCommand(Search);
         }
     }
 }

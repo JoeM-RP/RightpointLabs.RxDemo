@@ -1,4 +1,5 @@
-﻿using System.Reactive.Disposables;
+﻿using System;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using ReactiveUI;
 using RightpointLabs.RxDemo.Extensions;
@@ -46,12 +47,20 @@ namespace RightpointLabs.RxDemo.Views
 
             // Command Bind
             this.BindCommand(ViewModel, x => x.Search, c => c._search).DisposeWith(_bindingsDisposable);
-            //this.BindCommand(ViewModel, x => x.Search, c => c.searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
+            //this.BindCommand(ViewModel, x => x.Search, c => c._searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
 
-
+            this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsRefreshing).DisposeWith(_bindingsDisposable);
+            //this.WhenAnyObservable(x => x.ViewModel.Search.IsExecuting).BindTo(_searchResults, c => c.IsPullToRefreshEnabled).DisposeWith(_bindingsDisposable);
 
             // Run the refresh command OnAppearing
             this.ViewModel.Search.Execute(null);
+
+            // User error allows us to interact with our users and get feedback on how to handle an exception
+            UserError
+                .RegisterHandler(async (UserError arg) => {
+                    var result = await this.DisplayAlert("Failed to get latest schedule", $"{arg.ErrorMessage}{Environment.NewLine}Retry search?", "Yes", "No");
+                    return result ? RecoveryOptionResult.RetryOperation : RecoveryOptionResult.CancelOperation;
+                }).DisposeWith(_bindingsDisposable);
         }
 
         protected override void OnDisappearing()
@@ -64,14 +73,25 @@ namespace RightpointLabs.RxDemo.Views
 
         private View GetLandingPageView()
         {
-            var topBar = new StackLayout()
+            var location = new StackLayout()
+            {
+                Orientation = StackOrientation.Horizontal,
+                Padding = new Thickness(10, 0),
+                Children =
+                {
+                    (new Label() { Text = "Nearby:", TextColor = Color.Black}),
+                    (_textEntry = new Entry { Placeholder = "Search", HorizontalOptions = LayoutOptions.FillAndExpand}),
+                }
+            };
+
+            var actions = new StackLayout()
             {
                 Orientation = StackOrientation.Horizontal,
                 Padding = new Thickness(10,0),
                 Children =
                 {
-                    (_textEntry = new Entry { Placeholder = " Search", HorizontalOptions = LayoutOptions.FillAndExpand, IsVisible = false}),
-                    ( new Label() {Text = "Auto Refresh", TextColor = Color.Black }),
+                    ( new Label() { Text = "CTA Tracker", FontSize = 26, TextColor = Color.Black}),                 
+                    ( new Label() {Text = "Auto", TextColor = Color.Black, HorizontalOptions = LayoutOptions.EndAndExpand}),
                     (_searchRefresh = new Switch()),
                     (_search = new Button {Text = "Refresh", IsEnabled = true}),
                 }
@@ -81,17 +101,16 @@ namespace RightpointLabs.RxDemo.Views
             {
                 Padding = new Thickness(0, 10),
                 Children =
-                {
-                    (topBar),
-                    (_searchResults = new ListView
+                {        
+                    (actions),            
+                    (location),
+                    (_searchResults = new ListView(ListViewCachingStrategy.RecycleElement)
                     {
                         VerticalOptions = LayoutOptions.FillAndExpand,
                         HorizontalOptions = LayoutOptions.FillAndExpand,
-                        HasUnevenRows = true,
+                        HasUnevenRows = false,
                         ItemTemplate = new DataTemplate(typeof(ArrivalCell)),
-                        SeparatorColor = Color.White,
-                        SeparatorVisibility = SeparatorVisibility.Default
-                        //IsPullToRefreshEnabled = true
+                        SeparatorVisibility = SeparatorVisibility.None,
                     })
                 }
             };
