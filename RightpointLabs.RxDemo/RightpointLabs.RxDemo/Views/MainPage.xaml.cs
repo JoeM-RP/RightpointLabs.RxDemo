@@ -43,9 +43,9 @@ namespace RightpointLabs.RxDemo.Views
 
             // Command Bind
             this.BindCommand(ViewModel, x => x.Search, c => c.search).DisposeWith(_bindingsDisposable);
-            this.BindCommand(ViewModel, x => x.Search, c => c.searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
+            //this.BindCommand(ViewModel, x => x.Search, c => c.searchResults.RefreshCommand).DisposeWith(_bindingsDisposable);
 
-            this.ViewModel.Search.ExecuteAsync();
+            this.ViewModel.Search.Execute(null);
         }
 
         protected override void OnDisappearing()
@@ -63,7 +63,7 @@ namespace RightpointLabs.RxDemo.Views
                 Orientation = StackOrientation.Horizontal,
                 Children =
                 {
-                    (textEntry = new Entry { Placeholder = " Search", HorizontalOptions = LayoutOptions.FillAndExpand}),
+                    (textEntry = new Entry { Placeholder = " Search", Text = "Washington and Wells", HorizontalOptions = LayoutOptions.FillAndExpand}),
                     (search = new Button {Text = "Refresh", IsEnabled = true}),
                 }
             };
@@ -80,7 +80,9 @@ namespace RightpointLabs.RxDemo.Views
                         HorizontalOptions = LayoutOptions.FillAndExpand,
                         HasUnevenRows = true,
                         ItemTemplate = new DataTemplate(typeof(ArrivalCell)),
-                        IsPullToRefreshEnabled = true
+                        SeparatorColor = Color.White,
+                        SeparatorVisibility = SeparatorVisibility.Default
+                        //IsPullToRefreshEnabled = true
                     })
                 }
             };

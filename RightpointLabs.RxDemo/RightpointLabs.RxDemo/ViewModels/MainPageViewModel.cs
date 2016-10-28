@@ -49,19 +49,13 @@ namespace RightpointLabs.RxDemo.ViewModels
                     .Do(cps => Debug.WriteLine("$Can perfrom search query!"))
                     .DistinctUntilChanged();
 
+
             // ReactiveCommand has built-in support for background ops and ensures that a block
             // will only execute once at a time (useful for preventing many click senarios).
             // CanExecute will be diabled automatically when this execution enters this block and 
             // IsExecuting will be set accordingly while running
             Search = ReactiveCommand.CreateAsyncTask(canSearch, async _ =>
             {
-                #region Simulate Network Problems
-#if DEBUG
-                //if (DateTime.Now.Second % 3 == 0)
-                //    throw new TimeoutException("Unable to connect to web service");
-#endif
-                #endregion
-
                 // A good spot for DI ...
                 var apiService = new ApiService();
                 var result = await apiService.Refresh();
