@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="RightpointLabs.RxDemo.App">
+    <Application.Resources>
+        <!-- Application resource dictionary -->
+        <ResourceDictionary>
+            <!-- Primary -->
+            <Color x:Key="BrandColor">#6D6D70</Color>
+            <Color x:Key="BrandAccentColor">#E4002B</Color>
+            <!-- Accent -->
+            <Color x:Key="Red">#E4002B</Color>
+            <Color x:Key="PowderBlue">#87A3BA</Color>
+            <Color x:Key="Yellow">#FFBF19</Color>
+            <!-- Neutrals -->
+            <Color x:Key="White">#FFFFFF</Color>
+            <Color x:Key="LightGray">#F4F4F4</Color>
+            <Color x:Key="Gray">#DBDBDD</Color>
+            <Color x:Key="MediumGray">#BABCBF</Color>
+            <Color x:Key="SteelGray">#6D6D70</Color>
+            <Color x:Key="Black">#000000</Color>
+            <OnPlatform x:Key="RegularFontFamily" x:TypeArguments="x:String" iOS="HelveticaNeue" Android="sans-serif" WinPhone="" />
+            <OnPlatform x:Key="LightFontFamily" x:TypeArguments="x:String" iOS="HelveticaNeue-Light" Android="sans-serif-light" WinPhone="" />
+            <OnPlatform x:Key="MediumFontFamily" x:TypeArguments="x:String" iOS="HelveticaNeue-Medium" Android="sans-serif-medium" WinPhone="" />
+            <!-- Type -->
+            <Style TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontFamily" Value="{StaticResource MediumFontFamily}" />
+            </Style>
+            <Style x:Key="CaptionLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+            </Style>
+            <Style x:Key="BodyLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontFamily" Value="{StaticResource MediumFontFamily}" />
+            </Style>
+            <Style x:Key="Body2Label" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+            </Style>
+            <Style x:Key="TitleLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontFamily" Value="{StaticResource MediumFontFamily}" />
+            </Style>
+            <Style x:Key="SubheadLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+                <Setter Property="TextColor" Value="{StaticResource BrandColor}" />
+            </Style>
+            <Style x:Key="HeadlineLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+                <Setter Property="TextColor" Value="{StaticResource BrandColor}" />
+            </Style>
+            <Style x:Key="Display1Label" TargetType="Label">
+                <Setter Property="FontSize" Value="34" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+            </Style>
+            <Style x:Key="Display2Label" TargetType="Label">
+                <Setter Property="FontSize" Value="45" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+            </Style>
+            <Style x:Key="Display3Label" TargetType="Label">
+                <Setter Property="FontSize" Value="56" />
+                <Setter Property="FontFamily" Value="{StaticResource RegularFontFamily}" />
+            </Style>
+            <Style x:Key="Display4Label" TargetType="Label">
+                <Setter Property="FontSize" Value="112" />
+                <Setter Property="FontFamily" Value="{StaticResource LightFontFamily}" />
+            </Style>
+            <!-- Activity Indicator -->
+            <Style TargetType="ActivityIndicator">
+                <Setter Property="Color" Value="{StaticResource BrandColor}" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Start" />
+                <Setter Property="IsRunning" Value="{Binding IsBusy}" />
+            </Style>
+            <!-- Button -->
+            <Style TargetType="Button">
+                <Setter Property="TextColor" Value="{StaticResource SteelGray}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Gray}" />
+                <Setter Property="BorderColor" Value="{StaticResource Gray}" />
+            </Style>
+            <Style x:Key="BrandButton" TargetType="Button">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="BackgroundColor" Value="{StaticResource BrandColor}" />
+                <Setter Property="BorderColor" Value="{StaticResource BrandColor}" />
+            </Style>
+            <!-- BoxView -->
+            <Style x:Key="DividerBoxView" TargetType="BoxView">
+                <Setter Property="Color" Value="{StaticResource LightGray}" />
+                <Setter Property="HeightRequest" Value="1" />
+            </Style>
+            <!-- Pages -->
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource LightGray}" />
+                <Setter Property="Padding" Value="0,20,0,0" />
+            </Style>
+            <Style TargetType="NavigationPage">
+                <Setter Property="BarBackgroundColor" Value="{StaticResource BrandColor}" />
+                <Setter Property="BarTextColor" Value="White" />
+                <Setter Property="Icon" Value="slideout.png" />
+            </Style>
+            <!-- Xaml Resets -->
+            <Style x:Key="VisualStyle" TargetType="VisualElement">
+                <Setter Property="BackgroundColor" Value="White" />
+            </Style>
+            <Style TargetType="Frame">
+                <Setter Property="OutlineColor" Value="WhiteSmoke" />
+                <Setter Property="HasShadow" Value="False" />
+                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="Padding" Value="2" />
+            </Style>
+            <!-- Converters -->
+            <!-- Templates -->
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
